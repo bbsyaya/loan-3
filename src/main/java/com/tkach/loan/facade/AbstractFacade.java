@@ -28,7 +28,7 @@ public abstract class AbstractFacade<Entity extends AbstractEntity> {
 
     @Transactional
     public void remove(Entity e){
-        em.remove(e);
+        em.remove(em.merge(e));
     }
 
     @Transactional

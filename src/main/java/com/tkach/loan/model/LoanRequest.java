@@ -4,6 +4,7 @@ import org.joda.time.LocalDate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "loan_request")
@@ -17,7 +18,7 @@ public class LoanRequest extends AbstractEntity {
     @Basic(optional = false)
     private LocalDate applicationDate;
 
-    @JoinColumn(name = "message_type_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false, cascade = {CascadeType.MERGE})
     private User user;
 
@@ -26,6 +27,9 @@ public class LoanRequest extends AbstractEntity {
         this.term = term;
         this.applicationDate = applicationDate;
         this.user = user;
+    }
+
+    public LoanRequest() {
     }
 
     public BigDecimal getAmount() {
@@ -58,5 +62,23 @@ public class LoanRequest extends AbstractEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoanRequest that = (LoanRequest) o;
+        //Given that for some reason hibernate (or h2) returns BigDecimal with different scale (.00 vs .0 in Java)
+        //we compare amounts with compareTo
+        return amount.compareTo(that.amount) == 0 &&
+                Objects.equals(term, that.term) &&
+                Objects.equals(applicationDate, that.applicationDate) &&
+                Objects.equals(user, that.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(amount, term, applicationDate, user);
     }
 }
